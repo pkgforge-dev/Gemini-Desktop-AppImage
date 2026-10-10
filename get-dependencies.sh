@@ -22,10 +22,12 @@ curl -sSfL --retry 30 --retry-connrefused "$link" -o /tmp/temp.exe
 echo "$OMAHA_RESP" | grep -oP '<manifest[^>]+version="\K[^"]+' > ~/version
 
 echo "Preparing AppDir..."
-mkdir -p ./AppDir/bin/resources
-7z e /tmp/temp.exe "app-*/resources/*" -y "-xr!*.node" "-xr!*.exe" "-xr!*.dll" -o./AppDir/bin/resources
+mkdir -p ./AppDir/bin
+7z x /tmp/temp.exe "app-*/resources/*" -y "-xr!*.node" "-xr!*.exe" "-xr!*.dll" -o./AppDir/bin/
+mv ./AppDir/bin/app-*/resources ./AppDir/bin/resources
+rm -rf ./AppDir/bin/app-*
 
-E_VERSION=v$(grep -a -oP '"electron":\s*"\^?\K[0-9.]+' ./AppDir/bin/resources/app.asar | head -n 1)
+E_VERSION=v$(grep -a -oP '"electron":\s*"\^?\K[0-9.]+' ./AppDir/bin/resources/app.asar.unpacked/package.json | head -n 1)
 if [ "$ARCH" = "x86_64" ]; then
     E_ARCH="x64"
 elif [ "$ARCH" = "aarch64" ]; then
