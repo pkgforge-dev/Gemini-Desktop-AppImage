@@ -36,6 +36,7 @@ fi
 
 curl -sSfL "https://github.com/electron/electron/releases/download/${E_VERSION}/electron-${E_VERSION}-linux-${E_ARCH}.zip" | bsdtar -xf - -C ./AppDir/bin/
 mv ./AppDir/bin/electron ./AppDir/bin/gemini
+chmod +x ./AppDir/bin/gemini
 
 mkdir -p ./AppDir/share/icons/hicolor/256x256/apps/
 cp ./AppDir/bin/resources/app.asar.unpacked/assets/icon.png ./AppDir/share/icons/hicolor/256x256/apps/gemini.png
