@@ -6,7 +6,7 @@ ARCH=$(uname -m)
 
 echo "Installing package dependencies..."
 echo "---------------------------------------------------------------"
-pacman -Syu --noconfirm patchelf libnss_nis nss-mdns nss
+pacman -Syu --noconfirm libnss_nis
 
 echo "Installing debloated packages..."
 echo "---------------------------------------------------------------"
@@ -38,4 +38,4 @@ curl -sSfL "https://github.com/electron/electron/releases/download/${E_VERSION}/
 mv ./AppDir/bin/electron ./AppDir/bin/gemini
 
 mkdir -p ./AppDir/share/icons/hicolor/256x256/apps/
-mv ./AppDir/bin/resources/app.asar.unpacked/assets/icon.png ./AppDir/share/icons/hicolor/256x256/apps/gemini.png
+cp ./AppDir/bin/resources/app.asar.unpacked/assets/icon.png ./AppDir/share/icons/hicolor/256x256/apps/gemini.png
