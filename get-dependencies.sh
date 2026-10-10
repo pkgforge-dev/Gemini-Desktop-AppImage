@@ -15,7 +15,7 @@ get-debloated-pkgs --add-common --prefer-nano
 echo "Getting binary..."
 echo "---------------------------------------------------------------"
 
-OMAHA_RESP=$(curl -s -d '<?xml version="1.0" encoding="UTF-8"?><request protocol="3.0"><os platform="win" version="10"/><app appid="{533DD80C-942A-4464-B6A9-2E59428D784E}" version="0.0.0.0" ap="prod"><updatecheck/></app></request>' "https://tools.google.com/service/update2")
+OMAHA_RESP=$(curl -s -d '<?xml version="1.0" encoding="UTF-8"?><request protocol="3.0"><os platform="win" version="10.0" arch="x64"/><app appid="{533DD80C-942A-4464-B6A9-2E59428D784E}" version="0.0.0.0" ap="prod"><updatecheck/></app></request>' "https://tools.google.com/service/update2")
 link="$(echo "$OMAHA_RESP" | grep -oP 'url codebase="\Khttps[^"]+' | head -n1)$(echo "$OMAHA_RESP" | grep -oP 'package name="\K[^"]+')"
 
 curl -sSfL --retry 30 --retry-connrefused "$link" -o /tmp/temp.exe
@@ -34,3 +34,6 @@ fi
 
 curl -sSfL "https://github.com/electron/electron/releases/download/${E_VERSION}/electron-${E_VERSION}-linux-${E_ARCH}.zip" | bsdtar -xf - -C ./AppDir/bin/
 mv ./AppDir/bin/electron ./AppDir/bin/gemini
+
+mkdir -p ./AppDir/share/icons/hicolor/256x256/apps/
+mv ./AppDir/bin/resources/app.asar.unpacked/assets/icon.png ./AppDir/share/icons/hicolor/256x256/apps/gemini.png
