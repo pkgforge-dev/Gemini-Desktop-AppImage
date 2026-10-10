@@ -6,24 +6,31 @@ ARCH=$(uname -m)
 
 echo "Installing package dependencies..."
 echo "---------------------------------------------------------------"
-# pacman -Syu --noconfirm PACKAGESHERE
+pacman -Syu --noconfirm patchelf libnss_nis nss-mdns nss
 
 echo "Installing debloated packages..."
 echo "---------------------------------------------------------------"
 get-debloated-pkgs --add-common --prefer-nano
 
-# Comment this out if you need an AUR package
-#make-aur-package PACKAGENAME
+echo "Getting binary..."
+echo "---------------------------------------------------------------"
 
-# If the application needs to be manually built that has to be done down here
+OMAHA_RESP=$(curl -s -d '<?xml version="1.0" encoding="UTF-8"?><request protocol="3.0"><os platform="win" version="10"/><app appid="{533DD80C-942A-4464-B6A9-2E59428D784E}" version="0.0.0.0" ap="prod"><updatecheck/></app></request>' "https://tools.google.com/service/update2")
+link="$(echo "$OMAHA_RESP" | grep -oP 'url codebase="\Khttps[^"]+' | head -n1)$(echo "$OMAHA_RESP" | grep -oP 'package name="\K[^"]+')"
 
-# if you also have to make nightly releases check for DEVEL_RELEASE = 1
-#
-# if [ "${DEVEL_RELEASE-}" = 1 ]; then
-# 	nightly build steps
-# else
-# 	regular build steps
-# fi
+curl -sSfL --retry 30 --retry-connrefused "$link" -o /tmp/temp.exe
+echo "$OMAHA_RESP" | grep -oP 'manifest version="\K[^"]+' > ~/version
 
-# Note that when building manually, you want to output the version of the
-# application to a ~/version file and remove VERSION from make-appimage.sh
+echo "Preparing AppDir..."
+mkdir -p ./AppDir/bin/resources
+7z e /tmp/temp.exe "app-*/resources/*" -y "-xr!*.node" "-xr!*.exe" "-xr!*.dll" -o./AppDir/bin/resources
+
+E_VERSION=v$(grep -a -oP '"electron":\s*"\^?\K[0-9.]+' ./AppDir/bin/resources/app.asar | head -n 1)
+if [ "$ARCH" = "x86_64" ]; then
+    E_ARCH="x64"
+elif [ "$ARCH" = "aarch64" ]; then
+    E_ARCH="arm64"
+fi
+
+curl -sSfL "https://github.com/electron/electron/releases/download/${E_VERSION}/electron-${E_VERSION}-linux-${E_ARCH}.zip" | bsdtar -xf - -C ./AppDir/bin/
+mv ./AppDir/bin/electron ./AppDir/bin/gemini

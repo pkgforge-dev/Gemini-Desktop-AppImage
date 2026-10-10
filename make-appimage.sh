@@ -3,18 +3,27 @@
 set -eu
 
 ARCH=$(uname -m)
-VERSION=$(pacman -Q PACKAGENAME | awk '{print $2; exit}') # example command to get version of application here
-export ARCH VERSION
+export ARCH
 export OUTPATH=./dist
 export ADD_HOOKS="self-updater.hook"
 export UPINFO="gh-releases-zsync|${GITHUB_REPOSITORY%/*}|${GITHUB_REPOSITORY#*/}|latest|*$ARCH.AppImage.zsync"
-export ICON=PATH_OR_URL_TO_ICON
-export DESKTOP=PATH_OR_URL_TO_DESKTOP_ENTRY
+export ICON=./AppDir/bin/resources/app.asar.unpacked/assets/icon.png
+export DESKTOP=./AppDir/share/applications/gemini.desktop
 
-# Deploy dependencies
-quick-sharun /PATH/TO/BINARY_AND_LIBRARIES_HERE
+mkdir -p ./AppDir/share/applications/
+cat << 'EOF' > ./AppDir/share/applications/gemini.desktop
+[Desktop Entry]
+Name=Gemini
+Exec=gemini %U
+Terminal=false
+Type=Application
+Icon=gemini
+StartupWMClass=Gemini
+Comment=Standalone Native Desktop Client for Gemini
+Categories=Utility;
+EOF
 
-# Additional changes can be done in between here
+quick-sharun ./AppDir/bin/* /usr/lib/libnss_nis.so* /usr/lib/libnsl.so* /usr/lib/libnss_mdns*_minimal.so*
 
 # Turn AppDir into AppImage
 quick-sharun --make-appimage
